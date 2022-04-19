@@ -1,0 +1,85 @@
+{% extends 'base.html.twig' %}
+{% set nbrArticles = cartService.getDetailedCartItems()|length %}
+
+{% block title %}
+	{% if nbrArticles > 0 %}
+		Mon Panier ({{ nbrArticles }}
+		articles)
+	{% else %}
+		Mon Panier
+	{% endif %}
+{% endblock %}
+
+{% block body %}
+	<h3>Mon panier (
+		{{ nbrArticles}}
+		articles)
+	</h3>
+
+	{% if items|length > 0 %}
+		<table class="table">
+			<thead>
+				<tr>
+					<th>Produit</th>
+					<th>Prix</th>
+					<th>Quantitée</th>
+					<th>Total</th>
+					<th></th>
+				</tr>
+			</thead>
+			<tbody>
+				{% for item in items %}
+					<tr>
+						<td>{{ item.product.name }}</td>
+						<td>{{ item.product.price }}</td>
+						<td>
+							<a href="{{ path("cart_add", {'id': item.product.id}) }}?returnToCart=true" class="btn btn-sm btn-primary">+</a>
+							{{ item.quantity }}
+							<a href="{{ path("cart_decrement", {'id': item.product.id}) }}" class="btn btn-sm btn-primary">-</a>
+						</td>
+
+						<td>{{ item.total }}</td>
+						<td>
+							<a href="{{ path("cart_delete", {'id': item.product.id}) }}" class="btn btn-sm btn-danger">
+								<i class="fas fa-trash"></i>
+							</a>
+						</td>
+					</tr>
+				{% endfor %}
+			</tbody>
+			<tfoot>
+				<tr>
+					<td colspan="3">Total:</td>
+					<td>
+						<strong>{{ total }}
+							&euro;</strong>
+					</td>
+				</tr>
+			</tfoot>
+		</table>
+		<hr>
+
+		{% if app.user %}
+			<h3>Confimer votre commande</h3>
+			{{ form_start(confirmationForm, {'action': path('purchase_confirm')}) }}
+
+			{{ form_widget(confirmationForm) }}
+
+			<button type="submit" class="btn btn-success">Confimer commande</button>
+
+			{{ form_end(confirmationForm) }}
+		{% else %}
+			<h4>
+				<i class="fas fa-exclamation-triangle"></i>
+			</i>
+			Vous devez être connecté pour passer une commande
+
+		</h4>
+		<a href="{{ path('login') }}" class="btn btn-success">Connexion</a>
+		ou
+		<a href="#">Inscription</a>
+
+	{% endif %}
+{% else %}
+	<h2>Panier vide</h2>
+{% endif %}{% endblock %}
